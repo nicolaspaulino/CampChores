@@ -1,9 +1,42 @@
 import { StyleSheet, TextInput, Pressable } from 'react-native';
+import { useState } from 'react';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { router } from 'expo-router';
 
 export default function LoginScreen() {
+
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+    async function entrar() {
+    try {
+      const resposta = await fetch('http://localhost:3000/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          senha,
+        }),
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        alert(dados.mensagem);
+        return;
+      }
+
+      alert('Login realizado com sucesso!');
+
+    } catch (error) {
+      console.error(error);
+      alert('Não foi possível conectar ao servidor.');
+    }
+  }
+
   return (
     <ThemedView style={styles.container}>
 
@@ -22,6 +55,8 @@ export default function LoginScreen() {
       <TextInput
         style={styles.input}
         placeholder="Digite seu e-mail"
+        value={email}
+        onChangeText={setEmail}
       />
 
       <ThemedText style={styles.label}>
@@ -32,9 +67,13 @@ export default function LoginScreen() {
         style={styles.input}
         placeholder="Digite sua senha"
         secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
       />
 
-      <Pressable style={styles.button}>
+      <Pressable
+          style={styles.button}
+          onPress={entrar}>
         <ThemedText style={styles.buttonText}>
           Entrar
         </ThemedText>
